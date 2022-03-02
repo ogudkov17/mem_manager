@@ -11,11 +11,19 @@
 #define MEM_SIZE 10000
 #define THREAD_NUMBER 124
 
+MemoryManager<std::mutex>* pmm = NULL;
+
+/**
+ *	 Функция, заменяющая стандартное поведение при ошибке сегментации
+*/
 void segfault_sigaction(int signal, siginfo_t *si, void* arg)
 {
 		throw std::invalid_argument("segfault_sigaction(): ");
 }
 
+/**
+ *	Регистрация сигнала для перезагрузки ошибки сегментации
+*/
 void register_signal()
 {
 	struct sigaction sa;
@@ -27,8 +35,9 @@ void register_signal()
 	sigaction(SIGSEGV, &sa, NULL);
 }
 
-MemoryManager<std::mutex>* pmm = NULL;
-
+/**
+ *	Тест корректного выделения памяти
+*/
 TEST (MemoryManagerTest, Allocate)
 {
 		ASSERT_TRUE(pmm);
@@ -38,6 +47,9 @@ TEST (MemoryManagerTest, Allocate)
 		pmm->deallocate(block);
 }
 
+/**
+ *	Тест некорректного выделения памяти
+*/
 TEST (MemoryManagerTest, OversizeAllocate)
 {
 		ASSERT_TRUE(pmm);
@@ -47,6 +59,9 @@ TEST (MemoryManagerTest, OversizeAllocate)
 		pmm->deallocate(block);
 }
 
+/**
+ *	Тест корректного освобождения памяти
+*/
 TEST (MemoryManagerTest, Deallocate)
 {
 		ASSERT_TRUE(pmm);
@@ -63,6 +78,9 @@ TEST (MemoryManagerTest, Deallocate)
 
 }
 
+/**
+ *	Тест некорректного освобождения памяти
+*/
 TEST (MemoryManagerTest, WrongBlockDeallocate)
 {
 		ASSERT_TRUE(pmm);
@@ -79,6 +97,9 @@ TEST (MemoryManagerTest, WrongBlockDeallocate)
 
 }
 
+/**
+ *	Тест перекрестного выделения и освобождения блоков памяти
+*/
 TEST (MemoryManagerTest, Alloc1Alloc2Dealloc2Dealloc1)
 {
 		ASSERT_TRUE(pmm);
@@ -108,6 +129,9 @@ TEST (MemoryManagerTest, Alloc1Alloc2Dealloc2Dealloc1)
 		EXPECT_FALSE(exception_triggered);
 }
 
+/**
+ *	Тест последовательного выделения и освобождения двух блоков памяти
+*/
 TEST (MemoryManagerTest, AllocDeallocAllocDealloc)
 {
 		ASSERT_TRUE(pmm);
@@ -139,6 +163,9 @@ TEST (MemoryManagerTest, AllocDeallocAllocDealloc)
 		EXPECT_FALSE(exception_triggered);
 }
 
+/**
+ *	Функция потока
+*/
 void alloc_test()
 {
 		void* block = pmm->allocate(65);
@@ -155,6 +182,9 @@ void alloc_test()
 		ASSERT_FALSE(exception_triggered);
 }
 
+/**
+ *	Тест работы нескольких потоков
+*/
 TEST (MemoryManagerTest, ThreadAllocate)
 {
 	std::thread threads[THREAD_NUMBER];
@@ -171,11 +201,6 @@ TEST (MemoryManagerTest, ThreadAllocate)
 
 }
 
-
-void run()
-{
-	alloc_test();
-}
 
 int main(int argc, char** argv)
 {

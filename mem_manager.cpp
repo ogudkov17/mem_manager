@@ -8,7 +8,12 @@
 #include <stdexcept>
 
 #include "mem_manager.h"
-
+/**
+ * 	Выделение нового блока памяти из существующего списка
+ * \return блок памяти
+ * \param[in] memory адрес блока памяти
+ * \maram[in] size размер блока
+*/
 MemBlock* create_block(void* memory, size_t size)
 {
 	if (!memory) 
@@ -25,7 +30,11 @@ MemBlock* create_block(void* memory, size_t size)
 	return p;
 }
 
-
+/**
+ * 	Простая проверка блока памяти
+ * 	\return true/false
+ * 	\param[in] p блок данных для проверки
+*/
 bool validate_block(MemBlock* p)
 {
 	if (p->next != NULL && p->next->prev != p) return false;
@@ -35,6 +44,10 @@ bool validate_block(MemBlock* p)
 	return true;
 }
 
+/**
+ *	Вывод информации о блоке памяти
+ * 	\param[in] p блок данных для вывода 
+*/
 void print_block(MemBlock* p)
 {
 	std::cout<<"address["<<std::hex<<p<<"] | ";
@@ -44,7 +57,12 @@ void print_block(MemBlock* p)
 }
 
 
-
+/**
+ *	Конструктор менеджера памяти
+ *
+ *	\param[in]	memory  буфер памяти
+ *	\param[in] 	size 	размер буфера
+*/
 template<typename MutexType>
 MemoryManager<MutexType>::MemoryManager(void* memory, size_t size)
 {
@@ -64,6 +82,13 @@ MemoryManager<MutexType>::MemoryManager(void* memory, size_t size)
 
 }
 
+/**
+ *	Процедура выделения блока памяти
+ *	
+ *	\return блок памяти
+ *	\param[in/out] p Блок памяти
+ *	\param[in]	bytes Количество выделяемых байт
+*/
 template<typename MutexType>
 MemBlock* MemoryManager<MutexType>::allocate_block(MemBlock* p, size_t bytes)
 {
@@ -93,6 +118,12 @@ MemBlock* MemoryManager<MutexType>::allocate_block(MemBlock* p, size_t bytes)
 	return p;
 }
 
+
+/**
+ * Метод слияния освобождаемого блока с предыдущим 
+ * \return адрес общего блока
+ * \param[in] p	адрес освобождаемого блока
+*/
 template<typename MutexType>
 MemBlock* MemoryManager<MutexType>::merge_prev(MemBlock* p)
 {
@@ -107,6 +138,11 @@ MemBlock* MemoryManager<MutexType>::merge_prev(MemBlock* p)
 	return p->prev;
 }
 
+/**
+ * Метод слияния освобождаемого блока со следующим 
+ * \return адрес общего блока
+ * \param[in] p	адрес освобождаемого блока
+*/
 template<typename MutexType>
 MemBlock* MemoryManager<MutexType>::merge_next(MemBlock* p)
 {
@@ -122,6 +158,9 @@ MemBlock* MemoryManager<MutexType>::merge_next(MemBlock* p)
 	return p;
 }
 
+/**
+ * Проверка списка блоков памяти
+*/
 template<typename MutexType>
 void MemoryManager<MutexType>::validate()
 {
@@ -141,6 +180,9 @@ void MemoryManager<MutexType>::validate()
 		if (counter != heap_size) throw std::invalid_argument("validate(): counter != heap size");
 }
 
+/**
+ * Вывод списка блоков памяти
+*/
 template<typename MutexType>
 void MemoryManager<MutexType>::print()
 {
@@ -157,7 +199,11 @@ void MemoryManager<MutexType>::print()
 
 }
 
-
+/**
+ * Выделение блока памяти
+ * \return адрес блока памяти
+ * \param[in] bytes размер блока
+*/
 template<typename MutexType>
 void* MemoryManager<MutexType>::allocate(size_t bytes)
 {
@@ -183,6 +229,10 @@ void* MemoryManager<MutexType>::allocate(size_t bytes)
 	return NULL;
 }
 
+/**
+ * Освобождение блока памяти
+ * \param[in] адрес блока памяти
+*/
 template<typename MutexType>
 void MemoryManager<MutexType>::deallocate(void* memory)
 {
@@ -232,4 +282,8 @@ void MemoryManager<MutexType>::deallocate(void* memory)
 
 }
 
+/**
+ *	Стандартный мьютекс
+ *	Можно добавить класс мьютекса для тестов
+*/
 template class MemoryManager<std::mutex>;

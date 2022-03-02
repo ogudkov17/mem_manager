@@ -3,6 +3,9 @@
 
 #include <mutex>
 
+/**
+ *	Блок данных для выделения памяти 
+*/
 typedef struct mem_block
 {
 		struct mem_block* 	next;
@@ -17,6 +20,9 @@ MemBlock* create_block(void* memory, size_t size);
 bool validate_block(MemBlock* p);
 void print_block(MemBlock* p);
 
+/**
+ * класс работы с памятью
+*/
 template<typename MutexType = std::mutex>
 class MemoryManager
 {
