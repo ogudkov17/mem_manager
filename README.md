@@ -10,6 +10,10 @@
 
 * Язык программирования - C/C++
 
+### Список необходимого ПО
+
+build-essential, googletest
+
 ### Реализация
 
 Класс MemoryManager
